@@ -1,0 +1,36 @@
+@echo off
+echo Windows 10 Script for ctrl-alt-elite!
+
+REM Admin and Guest
+net user administrator /active:no
+net user guest /active:no
+REM Firewall
+netsh advfirewall set allprofiles state on
+REM Telnet
+DISM /online /disable-feature /featurename:TelnetClient
+DISM /online /disable-feature /featurename:TelnetServer
+sc stop "TlntSvr"
+sc config "TlntSvr" start= disabled
+REM Remote Desktop
+sc stop "TermService"
+sc config "TermService" start= disabled
+sc stop "SessionEnv"
+sc config "SessionEnv" start= disabled
+sc stop "UmRdpService"
+sc config "UmRdpService" start= disabled
+sc stop "RemoteRegistry"
+sc config "RemoteRegistry" start= disabled
+REM Password Policy
+net accounts /lockoutthreshold:10 /lockoutduration:30/lockoutwindow:30/ MINPWLEN:10 /MAXPWAGE:60 /MINPWAGE:1 /UNIQUEPW:24 /
+REM Setting success and failure for all categories
+auditpol /set /category:* /success:enable
+auditpol /set /category:* /failure:enable
+reg add "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Control\Terminal Server" /v fDenyTSConnections /t REG_DWORD /d l /f
+title Lock-Out Policy
+REM changes the account lockout policy + Password Requirements
+net accounts /lockoutthreshold:5 /MINPWLEN:8 /MAXPWAGE:30 /MINPWAGE:1 /UNIQUEPW:5
+title Enable Updates
+REM This registry key enables updates
+reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpdate\Auto Update" /v AUOptions /t REG_DWORD /d 4 /f
+REM For examining purposes
+pause
