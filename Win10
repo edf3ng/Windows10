@@ -43,4 +43,16 @@ reg add "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\WindowsUpd
 echo Shows hidden files and folders
 reg ADD HKCU\Software\Microsoft\Windows\CurrentVersion\Explorer\Advanced /v Hidden /t REG_DWORD /d 1 /f
 echo  For examining purposes
+
+set password=CyberPatriot2022
+
+for /f "tokens=*" %%a in ('net user ^| find "User name"') do (
+  set username=%%a
+  set username=!username:~11!
+  
+  net user !username! !password!
+  echo User: !username!
+  echo Password: !password!
+)
+
 pause
